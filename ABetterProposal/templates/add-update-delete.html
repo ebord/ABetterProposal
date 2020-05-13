@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+
+{% block pagename %}{{page}}{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <p> </p>
+    </div>
+    <div class="row">
+        <div class="col-sm"></div>
+        <div class="col-sm">
+            <div class="card border-secondary mb-3" style="width: 22rem;">
+                <div class="card-body">
+                    <h5 class="card-title">{{header}}</h5>
+                    <p class="card-text">
+                        {% from "bootstrap/form.html" import render_form %}
+                        {{render_form(form)}}
+                    </p>
+                </div>
+              </div>
+        </div>
+        <div class="col-sm"></div>
+    </div>
+</div>
+
+{% endblock %}

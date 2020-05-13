@@ -1,0 +1,49 @@
+{% extends 'layout.html' %}
+
+{% block pagename %}Home{% endblock %}
+
+{% block content %}
+<!--general header-->
+<div class="container-fluid p-3 my-3 bg-primary text-white">
+  <h1>Welcome</h1>
+  <p>an experimental website is available for your use <b>{{ username }}</b> !</p>
+</div>
+<!--main content-->
+<div class="card-group">
+  <div class="card">
+    <img class="card-img-top" src="/static/database.jpg">
+    <div class="card-body">
+      <h5 class="card-title">Proposal Database</h5>
+      <p class="card-text">By storing proposal information in a database,
+        we can find key information quickly and analyse data for important trends.
+      </p>
+    </div>
+    <div class="card-footer">
+      <a href="{{ url_for('experiment_db_dashboard') }}" class="btn btn-primary">Explore</a>
+    </div>
+  </div>
+  <div class="card">
+    <img class="card-img-top" src="/static/knowledge.jpg" >
+    <div class="card-body">
+      <h5 class="card-title">Proposal Repo</h5>
+      <p class="card-text">By managing knowledge around delivering proposals, 
+        we can gain access to valuable information and deliver better results.</p>
+    </div>
+    <div class="card-footer">
+      <a href="{{ url_for('experiment_repo') }}" class="btn btn-primary">Explore</a>
+    </div>
+  </div>
+  <div class="card">
+    <img class="card-img-top" src="/static/quality.jpg" >
+    <div class="card-body">
+      <h5 class="card-title">Proposal Tools</h5>
+      <p class="card-text">By using a computer program to analyze proposal content, 
+      we can gain better understanding which ensures our delivered contents meets or exceed our standards.</p>
+    </div>
+    <div class="card-footer">
+      <a href="{{ url_for('experiment_tools') }}" class="btn btn-primary">Explore</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
