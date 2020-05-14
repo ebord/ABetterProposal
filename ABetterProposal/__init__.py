@@ -1,11 +1,17 @@
 import os
 
-from flask import Flask
 from flask_bootstrap import Bootstrap
+from flask import Flask, session, render_template, redirect, url_for, flash
+
+from ABetterProposal.auth.auth import auth_bp
+from ABetterProposal.admin.admin import admin_bp
+from ABetterProposal.db.experiments_db import db_bp
+from ABetterProposal.repo.experiments_repo import repo_bp
+from ABetterProposal.tools.experiments_tools import tools_bp
 
 def create_app(test_config=None):
     # create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__, instance_relative_config=True,template_folder='templates')
     bootstrap = Bootstrap(app)
 
     #app.config.from_mapping(
@@ -29,14 +35,24 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    # a simple page that says hello
-    #@app.route('/hello')
-    #def hello():
-    #    return 'Hello, World!'
+    # this will be the home page, only accessible for loggedin users
+    @app.route('/')
+    @app.route('/home')
+    @app.route('/index')
+    def home():
+        # Check if user is loggedin
+        if 'loggedin' in session:
+            # User is loggedin show them the home page
+            return render_template('home.html', username=session['username'])
+        # User is not loggedin redirect to login page
+        return redirect(url_for('auth_bp.login'))
 
-    from . import model
-    from . import tables
-    from . import forms
-    from . import routes
+
+    # add blueprint modules
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(db_bp)
+    app.register_blueprint(repo_bp)
+    app.register_blueprint(tools_bp)
     
     return app
