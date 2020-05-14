@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+
+{% block pagename %}Admin{% endblock %}
+
+{% block content %}
+
+<!--header-->
+<div class="container-fluid p-3 my-3 bg-primary text-white">
+  <p>Welcome <b>{{ username }}</b> the following tables are available for view and editing in this application</p>
+</div>
+
+<!--cards-->
+<div class="card-columns">
+    <!-- logins -->
+    <div class="card bg-light">
+      <div class="card-body">
+        <h4 class="card-title ">Logins</h4>
+        <p class="card-text ">Table for registered users that can login into the system</p>
+        <a href="{{ url_for('admin_logins') }}" class="card-link">Details</a>
+      </div>
+    </div>
+    <!-- users --> 
+    <div class="card bg-light">
+      <div class="card-body">
+        <h4 class="card-title">Users</h4>
+        <p class="card-text">Table for users in the system</p>
+        <a href="{{ url_for('admin_users') }}" class="card-link">Details</a>
+      </div>   
+    </div>
+    <!-- proposals -->  
+    <div class="card bg-light">
+      <div class="card-body">
+        <h4 class="card-title">Proposals</h4>
+        <p class="card-text">Table for proposals in the system</p>
+        <a href="{{ url_for('admin_proposals') }}" class="card-link">Details</a>
+      </div>   
+    </div>
+    <!-- reference-proposal states -->  
+    <div class="card bg-light">
+      <div class="card-body">
+        <h4 class="card-title">Proposal States</h4>
+        <p class="card-text">Table for proposal states in the system</p>
+        <a href="{{ url_for('admin_proposalstates') }}" class="card-link">Details</a>
+      </div>   
+    </div>
+    <!-- reference-proposal types -->  
+    <div class="card bg-light">
+      <div class="card-body">
+        <h4 class="card-title">Proposal Types</h4>
+        <p class="card-text">Table for proposal types in the system</p>
+        <a href="{{ url_for('admin_proposaltypes') }}" class="card-link">Details</a>
+      </div>
+    </div>   
+</div>
+
+{% endblock %}

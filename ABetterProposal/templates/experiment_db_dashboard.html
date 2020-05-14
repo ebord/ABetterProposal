@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+
+{% block pagename %}Proposal Database{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <!-- side bar -->
+    <div class="sidebar">
+      <p></p>
+      <a class="active" href="{{ url_for('experiment_db_dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('experiment_db_proposals') }}">Proposals</a>
+      <a href="{{ url_for('experiment_db_plans') }}">Plans</a>
+      <a href="{{ url_for('experiment_db_teams') }}">Teams</a>
+    </div>
+
+    <!-- Page content -->
+    <div class="content">
+      <h2>Dashboard</h2>
+      <p>Dashboard Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
