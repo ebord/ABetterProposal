@@ -2,7 +2,9 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 
-from ABetterProposal.model import Users, Logins, Proposals, ReferenceProposalStates, ReferenceProposalTypes, db 
+from ABetterProposal.model import db, Users, find_all_users, find_user_by_id 
+from ABetterProposal.model import Logins, Proposals, ReferenceProposalStates, ReferenceProposalTypes, db 
+
 from ABetterProposal.tables import TableUsers, TableLogins, TableProposals, TableProposalStates, TableProposalTypes
 from ABetterProposal.forms import FormUsers, FormLogins, FormLoginsDelete, FormUsersDelete
 
@@ -88,7 +90,7 @@ def logins_add():
                 flash ('successful save in logins', 'success')
             except:
                 flash ('there was a problem adding to logins', 'warning')
-            return redirect('logins')           
+            return redirect('/logins')           
           
         return render_template('./add-update-delete.html', username=session['username'], form=addform, page=pagename, header=header)
 
@@ -115,15 +117,15 @@ def logins_delete(id):
                 flash ('successful delete in logins', 'success')
             except:
                 flash ('there was a problem deleting in logins', 'warning')
-            return redirect('/proposal-experiments/admin/logins')
+            return redirect('/logins')
 
-        return render_template('add-update-delete.html', username=session['username'],form=deleteform, page=pagename, header=header)
+        return render_template('./add-update-delete.html', username=session['username'],form=deleteform, page=pagename, header=header)
 
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
 # this will be the delete page for logins, only accessible for administrators
-@admin_bp.route('/proposal-experiments/logins_update/<int:id>', methods=["GET", "POST"])
+@admin_bp.route('/logins_update/<int:id>', methods=["GET", "POST"])
 def logins_update(id):
     # Check if user is loggedin
     if 'loggedin' in session:
@@ -147,7 +149,7 @@ def logins_update(id):
             except:
                 flash ('there was a problem updating in logins', 'success')   
 
-            return redirect('/proposal-experiments/admin/logins')
+            return redirect('/logins')
         else:
     
             # update form
@@ -155,13 +157,13 @@ def logins_update(id):
             updateform.username.data = user.UserName
             updateform.password.data = user.Password
 
-        return render_template('add-update-delete.html', username=session['username'],form=updateform, page=pagename, header=header)
+        return render_template('./add-update-delete.html', username=session['username'],form=updateform, page=pagename, header=header)
 
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
 ## this will allowing sorting of the logins table
-@admin_bp.route('/proposal-experiments/sort_logins')
+@admin_bp.route('/sort_logins')
 def sort_logins():
     
     sort = request.args.get('sort', 'id')
@@ -171,14 +173,14 @@ def sort_logins():
                           sort_by=sort,
                           sort_reverse=reverse)
 
-    return render_template('/admin/logins.html', table=table)
+    return render_template('admin_bp.logins.html', table=table)
 
 #----------------------------
 # users
 #----------------------------
 
 # this will be the admin page for user, only accessible for administrators
-@admin_bp.route('/proposal-experiments/admin/users')
+@admin_bp.route('/users')
 def admin_users():
     # Check if user is loggedin
     if 'loggedin' in session:
@@ -189,13 +191,13 @@ def admin_users():
         table = TableUsers(users)
 
         # Show the admin users page
-        return render_template('/admin/users.html', username=session['username'], table=table, users=users)
+        return render_template('/users.html', username=session['username'], table=table, users=users)
 
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
 # this will be the add page for users, only accessible for administrators
-@admin_bp.route('/proposal-experiments/users_add', methods=["GET", "POST"])
+@admin_bp.route('/users_add', methods=["GET", "POST"])
 def users_add():
 
     # Check if user is loggedin
@@ -218,15 +220,15 @@ def users_add():
                 flash ('successful save in users', 'success')
             except:
                 flash ('there was a problem adding to users', 'warning')
-            return redirect('/proposal-experiments/admin/users')           
+            return redirect('/users')           
           
-        return render_template('add-update-delete.html', username=session['username'], form=addform, page=pagename, header=header)
+        return render_template('./add-update-delete.html', username=session['username'], form=addform, page=pagename, header=header)
 
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
 # this will be the delete page for users, only accessible for administrators
-@admin_bp.route('/proposal-experiments/users_delete/<int:id>', methods=["GET", "POST"])
+@admin_bp.route('/users_delete/<int:id>', methods=["GET", "POST"])
 def users_delete(id):
     # Check if user is loggedin
     if 'loggedin' in session:
@@ -249,15 +251,15 @@ def users_delete(id):
                 flash ('successful delete in users', 'success')
             except:
                 flash ('there was a problem deleting in users', 'warning')
-            return redirect('/proposal-experiments/admin/users')
+            return redirect('/users')
 
-        return render_template('add-update-delete.html', username=session['username'],form=deleteform, page=pagename, header=header)
+        return render_template('./add-update-delete.html', username=session['username'],form=deleteform, page=pagename, header=header)
 
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
 # this will be the delete page for logins, only accessible for administrators
-@admin_bp.route('/proposal-experiments/users_update/<int:id>', methods=["GET", "POST"])
+@admin_bp.route('/users_update/<int:id>', methods=["GET", "POST"])
 def users_update(id):
     # Check if user is loggedin
     if 'loggedin' in session:
@@ -283,7 +285,7 @@ def users_update(id):
             except:
                 flash ('there was a problem updating in users', 'success')   
 
-            return redirect('/proposal-experiments/admin/users')
+            return redirect('/users')
         else:
     
             # update form
@@ -292,13 +294,13 @@ def users_update(id):
             updateform.lastname.data = user.LastName
             updateform.emailaddress.data = user.EmailAddress
             updateform.username.data = user.UserName
-        return render_template('add-update-delete.html', username=session['username'],form=updateform, page=pagename, header=header)
+        return render_template('./add-update-delete.html', username=session['username'],form=updateform, page=pagename, header=header)
 
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
 ## this will allowing sorting of the admin users table
-@admin_bp.route('/proposal-experiments/sort_users')
+@admin_bp.route('/sort_users')
 def sort_users():
     
     sort = request.args.get('sort', 'id')
@@ -307,14 +309,14 @@ def sort_users():
                           sort_by=sort,
                           sort_reverse=reverse)
     
-    return render_template('/admin/users.html', table=table)
+    return render_template('/users.html', table=table)
 
 #----------------------------
 # proposals
 #----------------------------
 
 # this will be the admin page for proposals, only accessible for administrators
-@admin_bp.route('/proposal-experiments/admin/proposals', methods=["GET", "POST"])
+@admin_bp.route('/proposals', methods=["GET", "POST"])
 def admin_proposals():
 
     # Check if user is loggedin
@@ -325,7 +327,7 @@ def admin_proposals():
         table = TableProposals(proposals)
         
         # Show the admin logins page
-        return render_template('/admin/proposals.html', username=session['username'], table=table, proposals=proposals)
+        return render_template('/proposals.html', username=session['username'], table=table, proposals=proposals)
 
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
@@ -335,7 +337,7 @@ def admin_proposals():
 #----------------------------
 
 # this will be the admin page for proposal states, only accessible for administrators
-@admin_bp.route('/proposal-experiments/admin/proposalstates', methods=["GET", "POST"])
+@admin_bp.route('/proposalstates', methods=["GET", "POST"])
 def admin_proposalstates():
 
     # Check if user is loggedin
@@ -346,7 +348,7 @@ def admin_proposalstates():
         table = TableProposalStates(proposalstates)
         
         # Show the admin logins page
-        return render_template('/admin/proposalstates.html', username=session['username'], table=table, proposalstates=proposalstates)
+        return render_template('/proposalstates.html', username=session['username'], table=table, proposalstates=proposalstates)
 
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
@@ -356,7 +358,7 @@ def admin_proposalstates():
 #----------------------------
 
 # this will be the admin page for proposal types, only accessible for administrators
-@admin_bp.route('/proposal-experiments/admin/proposaltypes', methods=["GET", "POST"])
+@admin_bp.route('/proposaltypes', methods=["GET", "POST"])
 def admin_proposaltypes():
 
     # Check if user is loggedin
@@ -367,7 +369,7 @@ def admin_proposaltypes():
         table = TableProposalTypes(proposaltypes)
         
         # Show the admin logins page
-        return render_template('/admin/proposaltypes.html', username=session['username'], table=table, proposaltypes=proposaltypes)
+        return render_template('/proposaltypes.html', username=session['username'], table=table, proposaltypes=proposaltypes)
 
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))

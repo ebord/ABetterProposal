@@ -1,5 +1,5 @@
-{% extends 'layout.html' %}
 
+{% extends 'layout.html' %}
 {% block pagename %}{{page}}{% endblock %}
 
 {% block content %}
@@ -15,8 +15,8 @@
                 <div class="card-body">
                     <h5 class="card-title">{{header}}</h5>
                     <p class="card-text">
-                        {% from "bootstrap/form.html" import render_form %}
-                        {{render_form(form)}}
+                        {% from "/bootstrap/wtf.html" import quick_form %}
+                        {{quick_form(form)}}
                     </p>
                 </div>
               </div>
