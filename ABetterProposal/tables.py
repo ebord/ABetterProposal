@@ -2,8 +2,9 @@ from flask_table import Table,Col,LinkCol
 from flask import url_for
 
 # ------------------------------------
-# table definitions for users
+# users
 # ------------------------------------
+
 class TableUsers(Table):
     classes = ['table', 'table-sm']
     thead_classes = ['thead-light']
@@ -22,17 +23,15 @@ class TableUsers(Table):
         return url_for('sort_users', sort=col_key, direction=direction)   
 
 # ------------------------------------
-# table definitions for logins
+# logins
 # ------------------------------------
+
 class TableLogins(Table):
     classes = ['table', 'table-sm']
     thead_classes = ['thead-light']
     ID = Col ('Id')
     UserName = Col ('User Name')
     Password = Col('Password')
-    
-    #update = LinkCol('update', 'logins_update', url_kwargs=dict(id='ID'))
-    #delete = LinkCol('delete', 'logins_delete', url_kwargs=dict(id='ID'))
 
     allow_sort = True
     def sort_url(self, col_key, reverse=True):
@@ -43,8 +42,9 @@ class TableLogins(Table):
         return url_for('sort_logins', sort=col_key, direction=direction)
 
 # --------------------------------------------------
-# table definitions for proposals
+# proposals
 # --------------------------------------------------
+
 class TableProposals(Table):
     classes = ['table', 'table-sm']
     thead_classes = ['thead-light']
@@ -57,8 +57,9 @@ class TableProposals(Table):
     ProposalType = Col('Type')
 
 # --------------------------------------------------
-# table definitions for reference-proposalstates
+# referenceproposalstates
 # --------------------------------------------------
+
 class TableProposalStates(Table):
     classes = ['table', 'table-sm']
     thead_classes = ['thead-light']
@@ -66,7 +67,7 @@ class TableProposalStates(Table):
     State = Col('State')
 
 # --------------------------------------------------
-# table definitions for reference-proposaltypes
+# referenceproposaltypes
 # --------------------------------------------------
 class TableProposalTypes(Table):
     classes = ['table', 'table-sm']

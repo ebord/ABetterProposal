@@ -21,7 +21,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a href="{{ url_for('admin_bp.logins_add') }}" class="btn btn-primary" role="button">Add</a>
+          <a href="{{ url_for('admin_bp.proposalstates_add') }}" class="btn btn-primary" role="button">Add</a>
         </li>
       </ul>
       <form class="form-inline" action="#">
@@ -44,8 +44,8 @@
       {% for item in proposalstates %}
       <tr>
         <td>
-          <a href="{{ url_for('admin_bp.logins_update',id=item.ID) }}" data-toggle="tooltip" title="update" class="btn btn-info" role="button"><i class="fas fa-edit"></i></a>
-          <a href="{{ url_for('admin_bp.logins_delete',id=item.ID) }}" data-toggle="tooltip" title="delete" class="btn btn-info" role="button"><i class="fas fa-trash"></i></a>
+          <a href="{{ url_for('admin_bp.proposalstates_update',id=item.ID) }}" data-toggle="tooltip" title="update" class="btn btn-info" role="button"><i class="fas fa-edit"></i></a>
+          <a href="{{ url_for('admin_bp.proposalstates_delete',id=item.ID) }}" data-toggle="tooltip" title="delete" class="btn btn-info" role="button"><i class="fas fa-trash"></i></a>
         </td>
         <td>{{item.ID}}</td>
         <td>{{item.State}}</td>

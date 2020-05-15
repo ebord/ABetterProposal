@@ -2,12 +2,14 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 
-from ABetterProposal.model import db, Users, find_all_users, find_user_by_id 
-from ABetterProposal.model import Logins, Proposals, ReferenceProposalStates, ReferenceProposalTypes, db 
+from ABetterProposal.model import db, Users, find_all_users, find_user_by_id, update_user_by_id 
+from ABetterProposal.model import Logins,  find_all_logins, find_login_by_id, update_login_by_id
+from ABetterProposal.model import Proposals, find_all_proposals, find_proposal_by_id, update_proposal_by_id
+from ABetterProposal.model import ReferenceProposalStates,  find_all_proposalstates, find_proposalstate_by_id, update_proposalstate_by_id
+from ABetterProposal.model import ReferenceProposalTypes,  find_all_proposaltypes, find_proposaltype_by_id, update_proposaltype_by_id
 
 from ABetterProposal.tables import TableUsers, TableLogins, TableProposals, TableProposalStates, TableProposalTypes
-from ABetterProposal.forms import FormUsers, FormLogins, FormLoginsDelete, FormUsersDelete
-
+from ABetterProposal.forms import FormUsers, FormLogins, FormProposals, FormProposalStates, FormProposalTypes
 
 # Blueprint Configuration
 admin_bp = Blueprint('admin_bp', __name__,
@@ -32,7 +34,7 @@ def admin():
 # profile
 #----------------------------
 
-# this will be the profile page, only accessible for loggedin users
+# this will be the profile page
 @admin_bp.route('/profile')
 def profile():
 
@@ -51,7 +53,7 @@ def profile():
 # logins
 #----------------------------
 
-# this will be the admin page for logins, only accessible for administrators
+# this will be the admin page for logins
 @admin_bp.route('/logins', methods=["GET", "POST"])
 def admin_logins():
 
@@ -59,7 +61,7 @@ def admin_logins():
     if 'loggedin' in session:
 
         # add table
-        logins = Logins.select()
+        logins = find_all_logins()
         table = TableLogins(logins)
         
         # Show the admin logins page
@@ -68,16 +70,18 @@ def admin_logins():
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
-# this will be the add page for logins, only accessible for administrators
+# this will be the add page for logins
 @admin_bp.route('/logins_add', methods=["GET", "POST"])
 def logins_add():
 
     # Check if user is loggedin
     if 'loggedin' in session:
 
-        # add form
+        # set pagename and header
         pagename="Admin: Logins"
         header="Add Record To Logins"
+
+        # add form
         addform = FormLogins(request.form)
 
         # add 
@@ -97,18 +101,21 @@ def logins_add():
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
-# this will be the delete page for logins, only accessible for administrators
+# this will be the delete page for logins
 @admin_bp.route('/logins_delete/<int:id>', methods=["GET", "POST"])
 def logins_delete(id):
     # Check if user is loggedin
     if 'loggedin' in session:
 
-        # delete form
+        # set pagename and header
         pagename="Admin: Logins"
         header="Delete Record From Logins"
-        test = Logins.get(Logins.ID==id)
-        deleteform = FormLoginsDelete()
+
+        # delete form
+        test = find_login_by_id(id)
+        deleteform = FormLogins()
         deleteform.username.data = test.UserName
+        deleteform.password.data = test.Password
 
         # delete 
         if deleteform.validate_on_submit():
@@ -124,14 +131,16 @@ def logins_delete(id):
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
-# this will be the delete page for logins, only accessible for administrators
+# this will be the delete page for logins
 @admin_bp.route('/logins_update/<int:id>', methods=["GET", "POST"])
 def logins_update(id):
     # Check if user is loggedin
     if 'loggedin' in session:
 
+        # set pagename and header
         pagename="Admin: Logins"
         header="Update Record In Logins"
+        
         updateform = FormLogins()
         # update 
         if updateform.validate_on_submit():
@@ -140,11 +149,9 @@ def logins_update(id):
             updateform.populate_obj(user)
     
             try:
-                query = Logins.update(
-                    UserName=updateform.username.data,       
-                    Password=updateform.password.data
-                ).where(Logins.ID==id)
-                query.execute()
+                update_login_by_id(updateform.username.data,
+                                   updateform.password.data, 
+                                   id)
                 flash ('successful update in logins', 'success')
             except:
                 flash ('there was a problem updating in logins', 'success')   
@@ -153,7 +160,7 @@ def logins_update(id):
         else:
     
             # update form
-            user = Logins.get(Logins.ID==id)
+            user = find_login_by_id(id)
             updateform.username.data = user.UserName
             updateform.password.data = user.Password
 
@@ -179,7 +186,7 @@ def sort_logins():
 # users
 #----------------------------
 
-# this will be the admin page for user, only accessible for administrators
+# this will be the admin page for users
 @admin_bp.route('/users')
 def admin_users():
     # Check if user is loggedin
@@ -196,16 +203,18 @@ def admin_users():
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
-# this will be the add page for users, only accessible for administrators
+# this will be the add page for users
 @admin_bp.route('/users_add', methods=["GET", "POST"])
 def users_add():
 
     # Check if user is loggedin
     if 'loggedin' in session:
 
-        # add form
+        # set pagename and header
         pagename="Admin: Users"
         header="Add Record To Users"
+
+        # add form
         addform = FormUsers(request.form)
 
         # add 
@@ -227,18 +236,19 @@ def users_add():
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
-# this will be the delete page for users, only accessible for administrators
+# this will be the delete page for users
 @admin_bp.route('/users_delete/<int:id>', methods=["GET", "POST"])
 def users_delete(id):
     # Check if user is loggedin
     if 'loggedin' in session:
 
-        # delete form
-        #test = Users.get(Users.ID==id)
+        # set pagename and header
         pagename="Admin: Users"
         header="Delete Record From Users"
+
+        # delete form
         test = find_user_by_id(id)
-        deleteform = FormUsersDelete()
+        deleteform = FormUsers()
         deleteform.firstname.data = test.FirstName
         deleteform.lastname.data = test.LastName
         deleteform.emailaddress.data = test.EmailAddress
@@ -258,15 +268,19 @@ def users_delete(id):
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
-# this will be the delete page for logins, only accessible for administrators
+# this will be the delete page for users
 @admin_bp.route('/users_update/<int:id>', methods=["GET", "POST"])
 def users_update(id):
     # Check if user is loggedin
     if 'loggedin' in session:
 
+        # set pagename and header
         pagename="Admin: Users"
         header="Update Record In Users"
+
+        # update form
         updateform = FormUsers()
+
         # update 
         if updateform.validate_on_submit():
 
@@ -274,13 +288,11 @@ def users_update(id):
             updateform.populate_obj(user)
     
             try:
-                query = Users.update(
-                    FirstName=updateform.firstname.data,
-                    LastName=updateform.lastname.data,
-                    EmailAddress=updateform.emailaddress.data,            
-                    UserName=updateform.username.data
-                ).where(Users.ID==id)
-                query.execute()
+                update_user_by_id (updateform.firstname.data, 
+                                   updateform.lastname.data,
+                                   updateform.emailaddress.data,
+                                   updateform.username.data,
+                                   id)
                 flash ('successful update in users', 'success')
             except:
                 flash ('there was a problem updating in users', 'success')   
@@ -289,7 +301,7 @@ def users_update(id):
         else:
     
             # update form
-            user = Users.get(Users.ID==id)
+            user = find_user_by_id(id)
             updateform.firstname.data = user.FirstName
             updateform.lastname.data = user.LastName
             updateform.emailaddress.data = user.EmailAddress
@@ -315,7 +327,7 @@ def sort_users():
 # proposals
 #----------------------------
 
-# this will be the admin page for proposals, only accessible for administrators
+# this will be the admin page for proposals
 @admin_bp.route('/proposals', methods=["GET", "POST"])
 def admin_proposals():
 
@@ -323,7 +335,7 @@ def admin_proposals():
     if 'loggedin' in session:
 
         # add table
-        proposals = Proposals.select()
+        proposals = find_all_proposals()
         table = TableProposals(proposals)
         
         # Show the admin logins page
@@ -332,11 +344,125 @@ def admin_proposals():
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
+# this will be the add page for proposals
+@admin_bp.route('/proposals_add', methods=["GET", "POST"])
+def proposals_add():
+
+    # Check if user is loggedin
+    if 'loggedin' in session:
+
+        # set pagename and header
+        pagename="Admin: Proposals"
+        header="Add Record To Proposals"
+
+        # add form
+        addform = FormProposals(request.form)
+
+        # add 
+        if addform.validate_on_submit():
+            try:
+                proposals = Proposals()
+                proposals.ProposalNumber = addform.proposalnumber.data
+                proposals.ProposalRevision = addform.proposalrevision.data
+                proposals.ProposalDescription = addform.proposaldescription.data
+                proposals.ProposalLink = addform.proposallink.data
+                proposals.ProposalState = addform.proposalstate.data
+                proposals.ProposalType = addform.proposaltype.data          
+                proposals.save()
+                flash ('successful save in proposals', 'success')
+            except:
+                flash ('there was a problem adding to proposals', 'warning')
+            return redirect('/proposals')           
+
+        return render_template('./add-update-delete.html', username=session['username'], form=addform, page=pagename, header=header)
+
+    # User is not loggedin redirect to admin page
+    return redirect(url_for('auth_bp.login'))
+
+# this will be the delete page for proposals
+@admin_bp.route('/proposals_delete/<int:id>', methods=["GET", "POST"])
+def proposals_delete(id):
+    # Check if user is loggedin
+    if 'loggedin' in session:
+
+        # set pagename and header
+        pagename="Admin: Proposals"
+        header="Delete Record From Proposals"
+
+        # delete form
+        test = find_proposal_by_id(id)
+        deleteform = FormProposals()
+        deleteform.proposalnumber.data = test.ProsposalNumber
+        deleteform.proposalrevision.data = test.ProposalRevision       
+        deleteform.proposaldescription.data = test.ProposalDescription
+        deleteform.proposallink.data = test.ProposalLink
+        deleteform.proposalstate.data = test.ProposalState
+        deleteform.proposaltype.data = test.ProposalType
+
+        # delete 
+        if deleteform.validate_on_submit():
+            try:
+                Proposals.delete_by_id(id)
+                flash ('successful delete in proposals', 'success')
+            except:
+                flash ('there was a problem deleting in proposals', 'warning')
+            return redirect('/proposals')
+
+        return render_template('./add-update-delete.html', username=session['username'],form=deleteform, page=pagename, header=header)
+
+    # User is not loggedin redirect to admin page
+    return redirect(url_for('auth_bp.login'))
+
+# this will be the delete page for proposals
+@admin_bp.route('/proposals_update/<int:id>', methods=["GET", "POST"])
+def proposals_update(id):
+    # Check if user is loggedin
+    if 'loggedin' in session:
+
+        # set pagename and header
+        pagename="Admin: Proposals"
+        header="Update Record In Proposals"
+
+        # update form
+        updateform = FormProposals()
+
+        # update 
+        if updateform.validate_on_submit():
+
+            proposal= Proposals()
+            updateform.populate_obj(proposal)
+    
+            try:
+                update_proposal_by_id (updateform.proposalnumber.data, 
+                                       updateform.proposalrevisions.data,
+                                       updateform.proposaldescriptions.data,
+                                       updateform.proposallink.data,
+                                       updateform.proposalstate.data,
+                                       updateform.proposaltype.data,
+                                       id)
+                flash ('successful update in proposals', 'success')
+            except:
+                flash ('there was a problem updating in proposals', 'success')   
+
+            return redirect('/proposals')
+        else:
+    
+            # update form
+            user = find_user_by_id(id)
+            updateform.firstname.data = user.FirstName
+            updateform.lastname.data = user.LastName
+            updateform.emailaddress.data = user.EmailAddress
+            updateform.username.data = user.UserName
+        return render_template('./add-update-delete.html', username=session['username'],form=updateform, page=pagename, header=header)
+
+    # User is not loggedin redirect to admin page
+    return redirect(url_for('auth_bp.login'))
+
 #----------------------------
-# proposal states
+# reference proposal states
 #----------------------------
 
-# this will be the admin page for proposal states, only accessible for administrators
+# this will be the admin page for reference proposal states
 @admin_bp.route('/proposalstates', methods=["GET", "POST"])
 def admin_proposalstates():
 
@@ -344,7 +470,7 @@ def admin_proposalstates():
     if 'loggedin' in session:
 
         # add table
-        proposalstates = ReferenceProposalStates.select()
+        proposalstates = find_all_proposalstates()
         table = TableProposalStates(proposalstates)
         
         # Show the admin logins page
@@ -353,11 +479,111 @@ def admin_proposalstates():
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
+# this will be the add page for reference proposal states
+@admin_bp.route('/proposalstates_add', methods=["GET", "POST"])
+def proposalstates_add():
+
+    # Check if user is loggedin
+    if 'loggedin' in session:
+
+        # set pagename and header
+        pagename="Admin: Reference Proposal States"
+        header="Add Record To Reference Proposal States"
+
+        # add form
+        addform = FormProposalStates(request.form)
+
+        # add 
+        if addform.validate_on_submit():
+            try:
+                proposalstates = ReferenceProposalStates()
+                proposalstates.ID = addform.id.data
+                proposalstates.State = addform.state.data         
+                proposalstates.save()
+                flash ('successful save in reference proposal states', 'success')
+            except:
+                flash ('there was a problem adding to reference proposal states', 'warning')
+            return redirect('/proposalstates')           
+
+        return render_template('./add-update-delete.html', username=session['username'], form=addform, page=pagename, header=header)
+
+    # User is not loggedin redirect to admin page
+    return redirect(url_for('auth_bp.login'))
+
+# this will be the delete page for reference proposal states
+@admin_bp.route('/proposalstates_delete/<int:id>', methods=["GET", "POST"])
+def proposalstates_delete(id):
+    # Check if user is loggedin
+    if 'loggedin' in session:
+
+        # set pagename and header
+        pagename="Admin: Reference Proposal States"
+        header="Delete Record From Reference Proposal States"
+
+        # delete form
+        test = find_proposalstate_by_id(id)
+        deleteform = FormProposalStates()
+        deleteform.id.data = test.ID
+        deleteform.state.data = test.State      
+
+        # delete 
+        if deleteform.validate_on_submit():
+            try:
+                ReferenceProposalStates.delete_by_id(id)
+                flash ('successful delete in reference proposal states', 'success')
+            except:
+                flash ('there was a problem deleting in reference proposal states', 'warning')
+            return redirect('/proposals')
+
+        return render_template('./add-update-delete.html', username=session['username'],form=deleteform, page=pagename, header=header)
+
+    # User is not loggedin redirect to admin page
+    return redirect(url_for('auth_bp.login'))
+
+# this will be the delete page for reference proposal states
+@admin_bp.route('/proposalstates_update/<int:id>', methods=["GET", "POST"])
+def proposalstates_update(id):
+    # Check if user is loggedin
+    if 'loggedin' in session:
+
+        # set pagename and header
+        pagename="Admin: Reference Proposal States"
+        header="Update Record In Reference Proposal States"
+
+        # update form
+        updateform = FormProposalStates()
+
+        # update 
+        if updateform.validate_on_submit():
+
+            proposalstates= ReferenceProposalStates()
+            updateform.populate_obj(proposalstates)
+    
+            try:
+                update_proposalstates_by_id (updateform.id.data, 
+                                             updateform.State.data,
+                                             id)
+                flash ('successful update in reference proposal states', 'success')
+            except:
+                flash ('there was a problem updating in reference proposal states', 'success')   
+
+            return redirect('/proposalstates')
+        else:
+    
+            # update form
+            proposalstate = find_proposalstate_by_id(id)
+            updateform.id.data = proposalstate.ID
+            updateform.state.data = proposalstate.State
+        return render_template('./add-update-delete.html', username=session['username'],form=updateform, page=pagename, header=header)
+
+    # User is not loggedin redirect to admin page
+    return redirect(url_for('auth_bp.login'))
+
 #----------------------------
-# proposal types
+# reference proposal types
 #----------------------------
 
-# this will be the admin page for proposal types, only accessible for administrators
+# this will be the admin page for reference proposal types
 @admin_bp.route('/proposaltypes', methods=["GET", "POST"])
 def admin_proposaltypes():
 
@@ -365,7 +591,7 @@ def admin_proposaltypes():
     if 'loggedin' in session:
 
         # add table
-        proposaltypes = ReferenceProposalTypes.select()
+        proposaltypes = find_all_proposaltypes()
         table = TableProposalTypes(proposaltypes)
         
         # Show the admin logins page
@@ -374,3 +600,101 @@ def admin_proposaltypes():
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
 
+# this will be the add page for reference proposal types
+@admin_bp.route('/proposaltypes_add', methods=["GET", "POST"])
+def proposaltypes_add():
+
+    # Check if user is loggedin
+    if 'loggedin' in session:
+
+        # set pagename and header
+        pagename="Admin: Reference Proposal Types"
+        header="Add Record To Reference Proposal Types"
+
+        # add form
+        addform = FormProposalTypes(request.form)
+
+        # add 
+        if addform.validate_on_submit():
+            try:
+                proposaltypes = ReferenceProposalTypes()
+                proposaltypes.Type = addform.type.data         
+                proposaltypes.save()
+                flash ('successful save in reference proposal types', 'success')
+            except:
+                flash ('there was a problem adding to reference proposal types', 'warning')
+            return redirect('/proposaltypes')           
+
+        return render_template('./add-update-delete.html', username=session['username'], form=addform, page=pagename, header=header)
+
+    # User is not loggedin redirect to admin page
+    return redirect(url_for('auth_bp.login'))
+
+# this will be the delete page for reference proposal types
+@admin_bp.route('/proposaltypes_delete/<int:id>', methods=["GET", "POST"])
+def proposaltypes_delete(id):
+    # Check if user is loggedin
+    if 'loggedin' in session:
+
+        # set pagename and header
+        pagename="Admin: Reference Proposal Types"
+        header="Delete Record From Reference Proposal Types"
+
+        # delete form
+        test = find_proposaltype_by_id(id)
+        deleteform = FormProposalTypes()
+        deleteform.id.data = test.ID
+        deleteform.type.data = test.Type     
+
+        # delete 
+        if deleteform.validate_on_submit():
+            try:
+                ReferenceProposalTypes.delete_by_id(id)
+                flash ('successful delete in reference proposal types', 'success')
+            except:
+                flash ('there was a problem deleting in reference proposal types', 'warning')
+            return redirect('/proposaltypes')
+
+        return render_template('./add-update-delete.html', username=session['username'],form=deleteform, page=pagename, header=header)
+
+    # User is not loggedin redirect to admin page
+    return redirect(url_for('auth_bp.login'))
+
+# this will be the delete page for reference proposal types
+@admin_bp.route('/proposaltypes_update/<int:id>', methods=["GET", "POST"])
+def proposaltypes_update(id):
+    # Check if user is loggedin
+    if 'loggedin' in session:
+
+        # set pagename and header
+        pagename="Admin: Reference Proposal Types"
+        header="Update Record In Reference Proposal Types"
+
+        # update form
+        updateform = FormProposalTypes()
+
+        # update 
+        if updateform.validate_on_submit():
+
+            proposaltypes = ReferenceProposalTypes()
+            updateform.populate_obj(proposaltypes)
+    
+            try:
+                update_proposaltypes_by_id (updateform.id.data, 
+                                            updateform.type.data,
+                                            id)
+                flash ('successful update in reference proposal types', 'success')
+            except:
+                flash ('there was a problem updating in reference proposal types', 'success')   
+
+            return redirect('/proposaltypes')
+        else:
+    
+            # update form
+            proposaltype = find_proposaltype_by_id(id)
+            updateform.id.data = proposaltype.ID
+            updateform.type.data = proposaltype.State
+        return render_template('./add-update-delete.html', username=session['username'],form=updateform, page=pagename, header=header)
+
+    # User is not loggedin redirect to admin page
+    return redirect(url_for('auth_bp.login'))

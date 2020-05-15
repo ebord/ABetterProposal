@@ -1,9 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextField, SubmitField, PasswordField
+from wtforms import StringField, TextField, SubmitField, PasswordField, HiddenField
 from wtforms.validators import DataRequired, Length
 from wtforms.widgets import PasswordInput
 
-# form definitions for users
+# ---------------------------
+# users
+# ---------------------------
+
 class FormUsers(FlaskForm):
     firstname = StringField('firstname', validators=[DataRequired()])
     lastname = StringField('lastname', validators=[DataRequired()])
@@ -11,19 +14,42 @@ class FormUsers(FlaskForm):
     username = StringField('username', validators=[DataRequired()])
     submit = SubmitField("Submit")
 
+# ---------------------------
+# logins
+# ---------------------------
+
 class FormLogins(FlaskForm):
     username = StringField('username', validators=[DataRequired()])
     password = StringField('password', widget=PasswordInput(hide_value=False))
-
     submit = SubmitField("Submit")
 
-class FormLoginsDelete(FlaskForm):
-    username = StringField('username')
+# ---------------------------
+# proposals
+# ---------------------------
+
+class FormProposals(FlaskForm):
+    proposalnumber = StringField('proposalnumber', validators=[DataRequired()])
+    proposalrevision = StringField('proposalnumber', validators=[DataRequired()])
+    proposaldescription = StringField('proposaldescription', validators=[DataRequired()])
+    proposallink = StringField('proposallink', validators=[DataRequired()])
+    proposalstate = StringField('proposalstate', validators=[DataRequired()])
+    proposaltype = StringField('proposaltype', validators=[DataRequired()])
     submit = SubmitField("Submit")
 
-class FormUsersDelete(FlaskForm):
-    firstname = StringField('firstname')
-    lastname = StringField('lastname')
-    emailaddress = StringField('email')
-    username = StringField('username')
-    submit = SubmitField("Submit") 
+# ---------------------------
+# reference proposal states
+# ---------------------------
+
+class FormProposalStates(FlaskForm):
+    #id = StringField('id', validators=[DataRequired()])
+    state = StringField('state', validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+# ---------------------------
+# reference proposal types
+# ---------------------------
+
+class FormProposalTypes(FlaskForm):
+    id = HiddenField('id')
+    type = StringField('type', validators=[DataRequired()])
+    submit = SubmitField("Submit")

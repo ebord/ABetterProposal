@@ -4,7 +4,7 @@ from flask import (
 
 from ABetterProposal.tables import TableUsers, TableLogins
 from ABetterProposal.model import Users, Logins, db 
-from ABetterProposal.forms import FormUsers, FormLogins, FormLoginsDelete, FormUsersDelete
+from ABetterProposal.forms import FormUsers, FormLogins
 
 # Blueprint Configuration
 auth_bp = Blueprint('auth_bp', __name__,
