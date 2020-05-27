@@ -32,6 +32,8 @@
   </nav>
   
   <p>   </p>
+  {{ pagination.info }}
+  {{ pagination.links | safe}}
   <table class="table">
     <thead class="thead-dark">
       <tr>
@@ -41,21 +43,20 @@
       </tr>
     </thead>
     <tbody>
-      {% for item in proposalstates %}
+      {% for state in proposalstates %}
       <tr>
         <td>
-          <a href="{{ url_for('admin_bp.proposalstates_update',id=item.ID) }}" data-toggle="tooltip" title="update" class="btn btn-info" role="button"><i class="fas fa-edit"></i></a>
-          <a href="{{ url_for('admin_bp.proposalstates_delete',id=item.ID) }}" data-toggle="tooltip" title="delete" class="btn btn-info" role="button"><i class="fas fa-trash"></i></a>
+          <a href="{{ url_for('admin_bp.proposalstates_update',id=state.ID) }}" data-toggle="tooltip" title="update" class="btn btn-info" role="button"><i class="fas fa-edit"></i></a>
+          <a href="{{ url_for('admin_bp.proposalstates_delete',id=state.ID) }}" data-toggle="tooltip" title="delete" class="btn btn-info" role="button"><i class="fas fa-trash"></i></a>
         </td>
-        <td>{{item.ID}}</td>
-        <td>{{item.State}}</td>
+        <td>{{state.ID}}</td>
+        <td>{{state.State}}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 
 <!-- footer pagination -->
-
 </div>
 
 {% endblock %}

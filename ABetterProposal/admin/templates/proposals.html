@@ -51,12 +51,12 @@
           <a href="{{ url_for('admin_bp.proposals_update',id=item.ID) }}" data-toggle="tooltip" title="update" class="btn btn-info" role="button"><i class="fas fa-edit"></i></a>
           <a href="{{ url_for('admin_bp.proposals_delete',id=item.ID) }}" data-toggle="tooltip" title="delete" class="btn btn-info" role="button"><i class="fas fa-trash"></i></a>
         </td>
-        <td>{{item.Number}}</td>
-        <td>{{item.Revision}}</td>
-        <td>{{item.Description}}</td>
-        <td>{{item.Link}}</td>
-        <td>{{item.State}}</td>
-        <td>{{item.Type}}</td>
+        <td>{{item.ProposalNumber}}</td>
+        <td>{{item.ProposalRevision}}</td>
+        <td>{{item.ProposalDescription}}</td>
+        <td>{{item.ProposalLink}}</td>
+        <td>{{item.ProposalState}}</td>
+        <td>{{item.ProposalType}}</td>
       </tr>
       {% endfor %}
     </tbody>

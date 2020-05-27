@@ -29,7 +29,7 @@ class FormLogins(FlaskForm):
 
 class FormProposals(FlaskForm):
     proposalnumber = StringField('proposalnumber', validators=[DataRequired()])
-    proposalrevision = StringField('proposalnumber', validators=[DataRequired()])
+    proposalrevision = StringField('proposalrevision', validators=[DataRequired()])
     proposaldescription = StringField('proposaldescription', validators=[DataRequired()])
     proposallink = StringField('proposallink', validators=[DataRequired()])
     proposalstate = StringField('proposalstate', validators=[DataRequired()])
@@ -41,7 +41,7 @@ class FormProposals(FlaskForm):
 # ---------------------------
 
 class FormProposalStates(FlaskForm):
-    #id = StringField('id', validators=[DataRequired()])
+    id = HiddenField('id')
     state = StringField('state', validators=[DataRequired()])
     submit = SubmitField("Submit")
 

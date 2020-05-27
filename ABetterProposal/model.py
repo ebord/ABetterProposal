@@ -24,11 +24,11 @@ class Users(BaseModel):
         db_table = "users"
 
 # common functions
-def find_all_users():
+def get_all_users():
     query = Users.select()
     return query
 
-def find_user_by_id(attr):
+def get_user_by_id(attr):
     query = Users.get(Users.ID == attr)
     return query
 
@@ -54,11 +54,11 @@ class Logins(BaseModel):
         db_table = "logins"
 
 # common functions
-def find_all_logins():
+def get_all_logins():
     query = Logins.select()
     return query
 
-def find_login_by_id(attr):
+def get_login_by_id(attr):
     query = Logins.get(Logins.ID == attr)
     return query
 
@@ -86,22 +86,26 @@ class Proposals(BaseModel):
         db_table = "proposals"
 
 # common functions
-def find_all_proposals():
+def get_all_proposals():
     query = Proposals.select()
     return query
 
-def find_proposal_by_id(attr):
+def get_proposals_by_page(page, onpage):
+    query = Proposals.select().order_by(Proposals.ProposalNumber).paginate(page, onpage)
+    return query
+
+def get_proposal_by_id(attr):
     query = Proposals.get(Proposals.ID == attr)
     return query
 
-def update_proposal_by_id(number, revision, description, link, state, type, id):
+def update_proposal_by_id(number, revision, description, link, state, ptype, id):
     query = Proposals.update(
         ProposalNumber=number,
         ProposalRevision=revision,
         ProposalDescription=description,
         ProposalLink=link,
         ProposalState=state,
-        ProposalType=type
+        ProposalType=ptype
     ).where(Proposals.ID==id)
     query.execute()
 
@@ -117,17 +121,24 @@ class ReferenceProposalStates(BaseModel):
         db_table = "referenceproposalstates"
 
 # common functions
-def find_all_proposalstates():
+def get_all_proposalstates():
     query = ReferenceProposalStates.select()
     return query
 
-def find_proposalstate_by_id(attr):
+def get_proposalstates_by_page(page, itemsperpage):
+    query = ReferenceProposalStates.select().order_by(ReferenceProposalStates.ID).paginate(page, itemsperpage)
+    return query
+
+def get_proposalstates_count():
+    query = ReferenceProposalStates.select().count()
+    return query
+
+def get_proposalstate_by_id(attr):
     query = ReferenceProposalStates.get(ReferenceProposalStates.ID == attr)
     return query
 
-def update_proposalstate_by_id(id, state):
-    query = ReferenceProposalStates.update(
-        ID=id,       
+def update_proposalstate_by_id(state, id):
+    query = ReferenceProposalStates.update( 
         State=state
     ).where(ReferenceProposalStates.ID==id)
     query.execute()
@@ -144,17 +155,16 @@ class ReferenceProposalTypes(BaseModel):
         db_table = "referenceproposaltypes"
 
 # common functions
-def find_all_proposaltypes():
+def get_all_proposaltypes():
     query = ReferenceProposalTypes.select()
     return query
 
-def find_proposaltype_by_id(attr):
+def get_proposaltype_by_id(attr):
     query = ReferenceProposalTypes.get(ReferenceProposalTypes.ID == attr)
     return query
 
-def update_proposaltype_by_id(id, type):
-    query = ReferenceProposalTypes.update(
-        ID=id,       
+def update_proposaltype_by_id(type, id):
+    query = ReferenceProposalTypes.update(     
         Type=type
     ).where(ReferenceProposalTypes.ID==id)
     query.execute()

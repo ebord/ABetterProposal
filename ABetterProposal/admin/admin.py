@@ -1,12 +1,13 @@
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
+from flask_paginate import Pagination, get_page_parameter
 
-from ABetterProposal.model import db, Users, find_all_users, find_user_by_id, update_user_by_id 
-from ABetterProposal.model import Logins,  find_all_logins, find_login_by_id, update_login_by_id
-from ABetterProposal.model import Proposals, find_all_proposals, find_proposal_by_id, update_proposal_by_id
-from ABetterProposal.model import ReferenceProposalStates,  find_all_proposalstates, find_proposalstate_by_id, update_proposalstate_by_id
-from ABetterProposal.model import ReferenceProposalTypes,  find_all_proposaltypes, find_proposaltype_by_id, update_proposaltype_by_id
+from ABetterProposal.model import db, Users, get_all_users, get_user_by_id, update_user_by_id 
+from ABetterProposal.model import Logins,  get_all_logins, get_login_by_id, update_login_by_id
+from ABetterProposal.model import Proposals, get_all_proposals, get_proposals_by_page, get_proposal_by_id, update_proposal_by_id
+from ABetterProposal.model import ReferenceProposalStates,  get_all_proposalstates, get_proposalstates_by_page, get_proposalstates_count, update_proposalstate_by_id
+from ABetterProposal.model import ReferenceProposalTypes,  get_all_proposaltypes, get_proposaltype_by_id, update_proposaltype_by_id
 
 from ABetterProposal.tables import TableUsers, TableLogins, TableProposals, TableProposalStates, TableProposalTypes
 from ABetterProposal.forms import FormUsers, FormLogins, FormProposals, FormProposalStates, FormProposalTypes
@@ -61,7 +62,7 @@ def admin_logins():
     if 'loggedin' in session:
 
         # add table
-        logins = find_all_logins()
+        logins = get_all_logins()
         table = TableLogins(logins)
         
         # Show the admin logins page
@@ -112,7 +113,7 @@ def logins_delete(id):
         header="Delete Record From Logins"
 
         # delete form
-        test = find_login_by_id(id)
+        test = get_login_by_id(id)
         deleteform = FormLogins()
         deleteform.username.data = test.UserName
         deleteform.password.data = test.Password
@@ -160,7 +161,7 @@ def logins_update(id):
         else:
     
             # update form
-            user = find_login_by_id(id)
+            user = get_login_by_id(id)
             updateform.username.data = user.UserName
             updateform.password.data = user.Password
 
@@ -194,7 +195,7 @@ def admin_users():
 
         # add table
         #users = Users.select()
-        users = find_all_users()
+        users = get_all_users()
         table = TableUsers(users)
 
         # Show the admin users page
@@ -247,7 +248,7 @@ def users_delete(id):
         header="Delete Record From Users"
 
         # delete form
-        test = find_user_by_id(id)
+        test = get_user_by_id(id)
         deleteform = FormUsers()
         deleteform.firstname.data = test.FirstName
         deleteform.lastname.data = test.LastName
@@ -301,7 +302,7 @@ def users_update(id):
         else:
     
             # update form
-            user = find_user_by_id(id)
+            user = get_user_by_id(id)
             updateform.firstname.data = user.FirstName
             updateform.lastname.data = user.LastName
             updateform.emailaddress.data = user.EmailAddress
@@ -335,7 +336,7 @@ def admin_proposals():
     if 'loggedin' in session:
 
         # add table
-        proposals = find_all_proposals()
+        proposals = get_all_proposals()
         table = TableProposals(proposals)
         
         # Show the admin logins page
@@ -371,7 +372,7 @@ def proposals_add():
                 proposals.save()
                 flash ('successful save in proposals', 'success')
             except:
-                flash ('there was a problem adding to proposals', 'warning')
+                flash ('there was a problem adding to proposals', 'error')
             return redirect('/proposals')           
 
         return render_template('./add-update-delete.html', username=session['username'], form=addform, page=pagename, header=header)
@@ -390,7 +391,7 @@ def proposals_delete(id):
         header="Delete Record From Proposals"
 
         # delete form
-        test = find_proposal_by_id(id)
+        test = get_proposal_by_id(id)
         deleteform = FormProposals()
         deleteform.proposalnumber.data = test.ProsposalNumber
         deleteform.proposalrevision.data = test.ProposalRevision       
@@ -405,7 +406,7 @@ def proposals_delete(id):
                 Proposals.delete_by_id(id)
                 flash ('successful delete in proposals', 'success')
             except:
-                flash ('there was a problem deleting in proposals', 'warning')
+                flash ('there was a problem deleting in proposals', 'error')
             return redirect('/proposals')
 
         return render_template('./add-update-delete.html', username=session['username'],form=deleteform, page=pagename, header=header)
@@ -434,25 +435,27 @@ def proposals_update(id):
     
             try:
                 update_proposal_by_id (updateform.proposalnumber.data, 
-                                       updateform.proposalrevisions.data,
-                                       updateform.proposaldescriptions.data,
+                                       updateform.proposalrevision.data,
+                                       updateform.proposaldescription.data,
                                        updateform.proposallink.data,
                                        updateform.proposalstate.data,
                                        updateform.proposaltype.data,
                                        id)
                 flash ('successful update in proposals', 'success')
             except:
-                flash ('there was a problem updating in proposals', 'success')   
+                flash ('there was a problem updating in proposals', 'error')   
 
             return redirect('/proposals')
         else:
     
             # update form
-            user = find_user_by_id(id)
-            updateform.firstname.data = user.FirstName
-            updateform.lastname.data = user.LastName
-            updateform.emailaddress.data = user.EmailAddress
-            updateform.username.data = user.UserName
+            proposal = get_proposal_by_id(id)
+            updateform.proposalnumber.data = proposal.ProposalNumber
+            updateform.proposalrevision.data = proposal.ProposalRevision
+            updateform.proposaldescription.data = proposal.ProposalDescription
+            updateform.proposallink.data = proposal.ProposalLink
+            updateform.proposalstate.data = proposal.ProposalState
+            updateform.proposaltype.data = proposal.ProposalType
         return render_template('./add-update-delete.html', username=session['username'],form=updateform, page=pagename, header=header)
 
     # User is not loggedin redirect to admin page
@@ -469,12 +472,19 @@ def admin_proposalstates():
     # Check if user is loggedin
     if 'loggedin' in session:
 
+        # add pagination        
+        page = request.args.get(get_page_parameter(), type=int, default=1 )
+        #page = request.args.get(get_page_parameter, type=int, default=1 )
+
         # add table
-        proposalstates = find_all_proposalstates()
+        proposalstates = get_proposalstates_by_page(page,5)
         table = TableProposalStates(proposalstates)
-        
+        pagination = Pagination(page=page, total=ReferenceProposalStates.select().count(), record_name='proposalstates',show_single_page=True)
+        #pagination = Pagination(page=page,per_page=ITEMS_PER_PAGE,total=ReferenceProposalStates.select().count(),record_name='proposalstates',css_framework='bootstrap4')
+
         # Show the admin logins page
-        return render_template('/proposalstates.html', username=session['username'], table=table, proposalstates=proposalstates)
+        return render_template('/proposalstates.html', username=session['username'], 
+            table=table, proposalstates=proposalstates, pagination=pagination)
 
     # User is not loggedin redirect to admin page
     return redirect(url_for('auth_bp.login'))
@@ -497,7 +507,7 @@ def proposalstates_add():
         if addform.validate_on_submit():
             try:
                 proposalstates = ReferenceProposalStates()
-                proposalstates.ID = addform.id.data
+                #proposalstates.ID = addform.id.data
                 proposalstates.State = addform.state.data         
                 proposalstates.save()
                 flash ('successful save in reference proposal states', 'success')
@@ -521,7 +531,7 @@ def proposalstates_delete(id):
         header="Delete Record From Reference Proposal States"
 
         # delete form
-        test = find_proposalstate_by_id(id)
+        test = get_proposalstate_by_id(id)
         deleteform = FormProposalStates()
         deleteform.id.data = test.ID
         deleteform.state.data = test.State      
@@ -533,7 +543,7 @@ def proposalstates_delete(id):
                 flash ('successful delete in reference proposal states', 'success')
             except:
                 flash ('there was a problem deleting in reference proposal states', 'warning')
-            return redirect('/proposals')
+            return redirect('/proposalstates')
 
         return render_template('./add-update-delete.html', username=session['username'],form=deleteform, page=pagename, header=header)
 
@@ -560,9 +570,7 @@ def proposalstates_update(id):
             updateform.populate_obj(proposalstates)
     
             try:
-                update_proposalstates_by_id (updateform.id.data, 
-                                             updateform.State.data,
-                                             id)
+                update_proposalstate_by_id (updateform.state.data,id)
                 flash ('successful update in reference proposal states', 'success')
             except:
                 flash ('there was a problem updating in reference proposal states', 'success')   
@@ -571,7 +579,7 @@ def proposalstates_update(id):
         else:
     
             # update form
-            proposalstate = find_proposalstate_by_id(id)
+            proposalstate = get_proposalstate_by_id(id)
             updateform.id.data = proposalstate.ID
             updateform.state.data = proposalstate.State
         return render_template('./add-update-delete.html', username=session['username'],form=updateform, page=pagename, header=header)
@@ -591,7 +599,7 @@ def admin_proposaltypes():
     if 'loggedin' in session:
 
         # add table
-        proposaltypes = find_all_proposaltypes()
+        proposaltypes = get_all_proposaltypes()
         table = TableProposalTypes(proposaltypes)
         
         # Show the admin logins page
@@ -641,7 +649,7 @@ def proposaltypes_delete(id):
         header="Delete Record From Reference Proposal Types"
 
         # delete form
-        test = find_proposaltype_by_id(id)
+        test = get_proposaltype_by_id(id)
         deleteform = FormProposalTypes()
         deleteform.id.data = test.ID
         deleteform.type.data = test.Type     
@@ -680,20 +688,18 @@ def proposaltypes_update(id):
             updateform.populate_obj(proposaltypes)
     
             try:
-                update_proposaltypes_by_id (updateform.id.data, 
-                                            updateform.type.data,
-                                            id)
+                update_proposaltype_by_id (updateform.type.data, id)
                 flash ('successful update in reference proposal types', 'success')
             except:
-                flash ('there was a problem updating in reference proposal types', 'success')   
+                flash ('there was a problem updating in reference proposal types', 'error')   
 
             return redirect('/proposaltypes')
         else:
     
             # update form
-            proposaltype = find_proposaltype_by_id(id)
+            proposaltype = get_proposaltype_by_id(id)
             updateform.id.data = proposaltype.ID
-            updateform.type.data = proposaltype.State
+            updateform.type.data = proposaltype.Type
         return render_template('./add-update-delete.html', username=session['username'],form=updateform, page=pagename, header=header)
 
     # User is not loggedin redirect to admin page
